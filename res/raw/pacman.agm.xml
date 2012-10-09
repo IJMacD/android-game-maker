@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<agm version="1">
+	<sprites>
+		<sprite id="explorer/expl_left"  resource="img/expl_left.gif"  transparent="true" originLeft="60" originTop="47" />
+		<sprite id="explorer/expl_right" resource="img/expl_right.gif" transparent="true" originLeft="60" originTop="47" />
+		<sprite id="explorer/expl_up"    resource="img/expl_up.gif"    transparent="true" originLeft="60" originTop="47" />
+		<sprite id="explorer/expl_down"  resource="img/expl_down.gif"  transparent="true" originLeft="60" originTop="47" />
+		<sprite id="monsters/monster"    resource="img/monster.gif"    transparent="true" originLeft="60" originTop="47" />
+		<sprite id="monsters/afraid"     resource="img/m_affraid.gif"  transparent="true" originLeft="60" originTop="47" />
+		<sprite id="treasure_sprite"     resource="img/treasure.gif"   transparent="true" originLeft="60" originTop="47" />
+		<sprite id="wall_sprite"         resource="img/wall.gif"       transparent="true" originLeft="60" originTop="47" />
+		<sprite id="special_sprite"      resource="img/special.gif"    transparent="true" originLeft="60" originTop="47" />
+		<sprite id="bonus_sprite"        resource="img/bonus.gif"      transparent="true" originLeft="60" originTop="47" />
+	</sprites>
+	<sounds>
+		<sound id="beeb"  resource="snd/beeb.wav"   type="effect" />
+		<sound id="dead"  resource="snd/dead.wav"   type="effect" />
+		<sound id="bonus" resource="snd/bonus.wav"  type="effect" />
+		<sound id="won"   resource="snd/won.wav"    type="effect" />
+		<sound id="catch" resource="snd/catch.wav"  type="effect" />
+		<sound id="music" resource="snd/music.midi" type="background" />
+	</sounds>
+	<backgrounds>
+		<background id="background" resource="img/background.png" />
+	</backgrounds>
+	<objects>
+		<object id="explorer" sprite="explorer_expl_up" visable="true" solid="false">
+			<event name="CREATE">
+				<action name="CHANGE_SPRITE" appliesto="self" data="sprite:explorer/expl_up;subimage:0;speed:0;"/>
+			</event>
+			<event name="STEP">
+				<if-instance-count instance="point" operation="EQUALTO" value="0">
+					<then>
+						<action name="PLAY_SOUND" data="sound:won;loop:false;"/>
+						<action name="SLEEP"      data="period:2000;"/>
+						<if-next-room-exists>
+							<then>
+								<action name="GOTO_NEXT_ROOM"/>
+							</then>
+							<else>
+								<action name="SHOW_HIGHSCORES"/>
+								<action name="RESTART_GAME"/>
+							</else>
+						</if-next-room-exists>
+					</then>
+				</if-instance-count>
+			</event>
+			<event name="COLLISION" value="monster">
+				<action name="PLAY_SOUND" data="sound:dead;loop:false;"/>
+				<action name="SLEEP"      data="period:1500;"/>
+				<action name="JUMP_TO_START" appliesto="monster" />
+				<action name="JUMP_TO_START" appliesto="scared"  />
+				<action name="START_MOVING"  data="direction:16;speed:0;"/>
+				<action name="JUMP_TO_START" appliesto="self" />
+				<action name="SET_LIVES"  data="value:-1;relative:true;"/>
+			</event>
+			<event name="COLLISION" value="scared">
+				<action name="PLAY_SOUND" data="sound:catch;loop:false;"/>
+				<action name="JUMP_TO_START"   appliesto="other" />
+				<action name="CHANGE_INSTANCE" appliesto="other" data="object:monster;events:false;"/>
+				<action name="SET_SCORE" data="value:100;relative:true;"/>
+			</event>
+			<event name="COLLISION" value="wall">
+				<action name="START_MOVING" data="direction:16;speed:0;"/>
+			</event>
+			<event name="COLLISION" value="point">
+				<action name="DESTROY_INSTANCE" appliesto="other" />
+				<action name="PLAY_SOUND" data="sound:beeb;loop:false;"/>
+				<action name="SET_SCORE"  data="value:10;relative:true;"/>
+			</event>
+			<event name="COLLISION" value="pill">
+				<action name="PLAY_SOUND" data="sound:bonus;loop:false;"/>
+				<action name="DESTROY_INSTANCE" appliesto="other" />
+				<action name="CHANGE_INSTANCE"  appliesto="object:scared;"  data="object:monster;events:false;"/>
+				<action name="CHANGE_INSTANCE"  appliesto="object:monster;" data="object:scared;events:false;"/>
+				<action name="SET_ALARM"        appliesto="object:scared;"  data="alarm:alarm0;steps:160;relative:false;"/>
+			</event>
+			<event name="DPAD" value="LEFT">
+				<if-position-free appliesto="self" x="-4" y="0" relative="true" solidOnly="true">
+					<then>
+						<action name="START_MOVING"  appliesto="self" data="direction:32;speed:4;"/>
+						<action name="CHANGE_SPRITE" appliesto="self" data="sprite:exlorer/expl_left;subimage:-1;speed:0.5"/>
+					</then>
+				</if-position-free>
+			</event>
+			<event name="DPAD" value="UP">
+				<if-position-free appliesto="self" x="0" y="-4" relative="true" solidOnly="true">
+					<then>
+						<action name="START_MOVING"  appliesto="self" data="direction:2;speed:4;"/>
+						<action name="CHANGE_SPRITE" appliesto="self" data="sprite:exlorer/expl_up;subimage:-1;speed:0.5"/>
+					</then>
+				</if-position-free>
+			</event>
+			<event name="DPAD" value="RIGHT">
+				<if-position-free appliesto="self" x="4" y="0" relative="true" solidOnly="true">
+					<then>
+						<action name="START_MOVING"  appliesto="self" data="direction:8;speed:4;"/>
+						<action name="CHANGE_SPRITE" appliesto="self" data="sprite:exlorer/expl_right;subimage:-1;speed:0.5"/>
+					</then>
+				</if-position-free>
+			</event>
+			<event name="DPAD" value="DOWN">
+				<if-position-free appliesto="self" x="0" y="4" relative="true" solidOnly="true">
+					<then>
+						<action name="START_MOVING"  appliesto="self" data="direction:128;speed:4;"/>
+						<action name="CHANGE_SPRITE" appliesto="self" data="sprite:exlorer/expl_down;subimage:-1;speed:0.5"/>
+					</then>
+				</if-position-free>
+			</event>
+			<event name="OUTSIDE_ROOM">
+				<action name="WRAP_SCREEN" data="direction:both;"/>
+            </event>
+			<event name="GAME_START">
+				<action name="SET_LIVES"   data="value:3;"/>
+				<action name="SET_SCORE"   data="value:3;"/>
+				<action name="SET_CAPTION" data="showscore:true;scorecaption:'Score:';showlives:true;livescaption:'Lives:';showhealth:false;"/>
+				<action name="PLAY_SOUND"  data="sound:music;loop:true;"/>
+            </event>
+			<event name="NO_LIVES">
+				<action name="SHOW_HIGHSCORES"/>
+				<action name="RESTART_GAME"/>
+            </event>
+		</object>
+		<object id="monster"  sprite="monsters/monster" visable="true" solid="false">
+			<event name="CREATE">
+				<action name="CHANGE_SPRITE" appliesto="self" data="sprite:monsters/monster;subimage:0;speed:0;"/>
+				<action name="START_MOVING"  appliesto="self" data="direction:170;speed:4;"/>
+            </event>
+			<event name="STEP">
+				<if-grid-aligned appliesto="self" height="32" width="32">
+					<then>
+						<!--<action name="RUN_SCRIPT" data="script:adapt_direction;"/>-->
+						<if-property property="hspeed" operation="EQUALTO" value="4">
+							<then>
+								<if-random chancein="4">
+									<then>
+										<if-position-free appliesto="self" x="-4" y="0" relative="true" solidOnly="true">
+											<then>
+												<action name="START_MOVING"  appliesto="self" data="direction:32;speed:4;"/>
+                                            </then>
+                                        </if-position-free>
+									</then>
+								</if-random>
+								<if-random chancein="4">
+									<then>
+										<if-position-free appliesto="self" x="4" y="0" relative="true" solidOnly="true">
+											<then>
+												<action name="START_MOVING"  appliesto="self" data="direction:8;speed:4;"/>
+                                            </then>
+                                        </if-position-free>
+									</then>
+								</if-random>
+							</then>
+							<else>
+								<if-random chancein="4">
+									<then>
+										<if-position-free appliesto="self" x="0" y="-4" relative="true" solidOnly="true">
+											<then>
+												<action name="START_MOVING"  appliesto="self" data="direction:2;speed:4;"/>
+                                            </then>
+                                        </if-position-free>
+									</then>
+								</if-random>
+								<if-random chancein="4">
+									<then>
+										<if-position-free appliesto="self" x="0" y="4" relative="true" solidOnly="true">
+											<then>
+												<action name="START_MOVING"  appliesto="self" data="direction:128;speed:4;"/>
+                                            </then>
+                                        </if-position-free>
+									</then>
+								</if-random>
+                            </else>
+                        </if-property>
+                    </then>
+                </if-grid-aligned>
+            </event>
+			<event name="COLLISION" value="wall">
+				<action name="REVERSE_HORIZONTAL_DIRECTION"/>
+				<action name="REVERSE_VERTICAL_DIRECTION"/>
+				<!--<action name="RUN_SCRIPT" data="script:adapt_direction;"/>-->
+				<if-property property="hspeed" operation="EQUALTO" value="4">
+							<then>
+								<if-random chancein="4">
+									<then>
+										<if-position-free appliesto="self" x="-4" y="0" relative="true" solidOnly="true">
+											<then>
+												<action name="START_MOVING"  appliesto="self" data="direction:32;speed:4;"/>
+                                            </then>
+                                        </if-position-free>
+									</then>
+								</if-random>
+								<if-random chancein="4">
+									<then>
+										<if-position-free appliesto="self" x="4" y="0" relative="true" solidOnly="true">
+											<then>
+												<action name="START_MOVING"  appliesto="self" data="direction:8;speed:4;"/>
+                                            </then>
+                                        </if-position-free>
+									</then>
+								</if-random>
+							</then>
+							<else>
+								<if-random chancein="4">
+									<then>
+										<if-position-free appliesto="self" x="0" y="-4" relative="true" solidOnly="true">
+											<then>
+												<action name="START_MOVING"  appliesto="self" data="direction:2;speed:4;"/>
+                                            </then>
+                                        </if-position-free>
+									</then>
+								</if-random>
+								<if-random chancein="4">
+									<then>
+										<if-position-free appliesto="self" x="0" y="4" relative="true" solidOnly="true">
+											<then>
+												<action name="START_MOVING"  appliesto="self" data="direction:128;speed:4;"/>
+                                            </then>
+                                        </if-position-free>
+									</then>
+								</if-random>
+                            </else>
+                        </if-property>
+            </event>
+			<event name="OUTSIDE_ROOM">
+				<action name="WRAP_SCREEN" data="direction:both;"/>
+            </event>
+        </object>
+		<object id="scared" sprite="monsters/afraid" visable="true" solid="false">
+			<event name="ALARM" value="alarm0">
+				<action name="CHANGE_INSTANCE" appliesto="self" data="object:monster;events:false;"/>
+            </event>
+        </object>
+		<object id="wall"  sprite="wall_sprite"     visable="true" solid="true"  />
+		<object id="point" sprite="treasure_sprite" visable="true" solid="false" />
+		<object id="pil"   sprite="special_sprite"  visable="true" solid="false" />
+		<object id="bonus" sprite="bonus_sprite"    visable="true" solid="false">
+			<event name="CREATE">
+				<action name="JUMP_TO_POSITION" appliesto="self" data="x:-1000;y:0;relative:false;"/>
+				<action name="SET_ALARM" data="alarm:alarm0;steps:500;relative:false;"/>
+			</event>
+			<event name="ALARM" value="alarm0">
+				<action name="JUMP_TO_START"/>
+				<action name="SET_ALARM" data="alarm:alarm1;steps:200;relative:false;"/>
+            </event>
+			<event name="ALARM" value="alarm1">
+				<action name="JUMP_TO_POSITION" appliesto="self" data="x:-1000;y:0;relative:false;"/>
+				<action name="SET_ALARM" data="alarm:alarm0;steps:500;relative:false;"/>
+            </event>
+			<event name="COLLISION" value="explorer">
+				<action name="PLAY_SOUND" data="sound:bonus;loop:false;"/>
+				<action name="SET_SCORE"  data="value:200;relative:true;"/>
+				<action name="JUMP_TO_POSITION" appliesto="self" data="x:-1000;y:0;relative:false;"/>
+				<action name="SET_ALARM" data="alarm:alarm0;steps:500;relative:false;"/>
+            </event>
+        </object>
+	</objects>
+	<rooms>
+		<room id="room0" width="320" height="480" gridWidth="32" gridHeight="32" backgroundColor="black" background="background">
+			<instances>
+				<instance object="wall" coords="0,0;1,0;2,0;3,0;4,0;5,0;6,0;7,0;8,0;9,0;0,1;9,1;0,2;9,2;0,3;9,3;0,4;9,4;0,5;9,5;0,6;9,6;0,7;9,7;0,8;9,8;0,9;9,9;0,10;9,10;0,11;9,11;0,12;9,12;0,13;9,13;0,14;1,14;2,14;3,14;4,14;5,14;6,14;7,14;8,14;9,14;"/>
+				<instance object="explorer" coords="5,8;"/>
+            </instances>
+        </room>
+    </rooms>
+</agm>
+			
+
